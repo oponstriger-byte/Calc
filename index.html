@@ -1,0 +1,341 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Калькулятор стоимости услуг склада — Центр Логистика Терминал</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12141c;
+    --ink-soft:#4a4f63;
+    --bg:#f4f6fb;
+    --panel:#ffffff;
+    --panel-line:#e2e6f0;
+    --accent:#1a2fd6;
+    --accent-2:#5b3df0;
+    --accent-tint:#eef0fe;
+    --accent-tint-line:#d7dcfb;
+    --ok:#137a4c;
+    --ok-tint:#e7f6ef;
+    --warn:#a15c00;
+    --warn-tint:#fff2df;
+    --danger:#b02a2a;
+    --danger-tint:#fdeceb;
+    --chip:#eef1f7;
+    --font-head:'Manrope',system-ui,sans-serif;
+    --font-body:'Inter',system-ui,sans-serif;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --ink:#eef0fa;
+      --ink-soft:#a9aec4;
+      --bg:#0d0f18;
+      --panel:#161927;
+      --panel-line:#2a2e42;
+      --accent:#6f83ff;
+      --accent-2:#9f8cff;
+      --accent-tint:#1a1e38;
+      --accent-tint-line:#2c3160;
+      --ok:#57caa0;
+      --ok-tint:#0e2b22;
+      --warn:#ffbe63;
+      --warn-tint:#332209;
+      --danger:#ff8f83;
+      --danger-tint:#3a1917;
+      --chip:#1e2233;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#eef0fa;
+    --ink-soft:#a9aec4;
+    --bg:#0d0f18;
+    --panel:#161927;
+    --panel-line:#2a2e42;
+    --accent:#6f83ff;
+    --accent-2:#9f8cff;
+    --accent-tint:#1a1e38;
+    --accent-tint-line:#2c3160;
+    --ok:#57caa0;
+    --ok-tint:#0e2b22;
+    --warn:#ffbe63;
+    --warn-tint:#332209;
+    --danger:#ff8f83;
+    --danger-tint:#3a1917;
+    --chip:#1e2233;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand img{height:34px;width:auto;display:block;}
+  .brand .divider{width:1px;height:26px;background:var(--panel-line);}
+  .brand h1{font-family:var(--font-head);font-size:16px;font-weight:700;margin:0;color:var(--ink);}
+  .brand p{margin:0;font-size:12.5px;color:var(--ink-soft);}
+  .vat-toggle{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--panel-line);border-radius:999px;padding:5px;}
+  .vat-toggle button{border:none;background:transparent;padding:7px 14px;border-radius:999px;font-family:var(--font-body);font-weight:600;font-size:13px;color:var(--ink-soft);cursor:pointer;transition:all .15s;}
+  .vat-toggle button.active{background:var(--accent);color:#fff;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--panel-line);}
+  .tabbtn{font-family:var(--font-head);font-weight:700;font-size:14.5px;padding:12px 18px;border:none;background:transparent;color:var(--ink-soft);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;}
+  .tabbtn.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+  .grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:20px;align-items:start;}
+  @media (max-width:900px){.grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--panel);border:1px solid var(--panel-line);border-radius:16px;padding:22px;margin-bottom:18px;}
+  .card h2{font-family:var(--font-head);font-size:15.5px;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+  .card .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:var(--accent-tint);color:var(--accent);font-size:12px;font-weight:800;font-family:var(--font-head);}
+  .card .sub{color:var(--ink-soft);font-size:13px;margin:0 0 16px;}
+  .hidden{display:none !important;}
+
+  label.field{display:block;margin-bottom:14px;}
+  label.field .lbl{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  input[type=number],input[type=text],select{
+    width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--panel-line);
+    background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;
+  }
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .seg{display:flex;border:1px solid var(--panel-line);border-radius:10px;overflow:hidden;}
+  .seg button{flex:1;padding:10px 8px;border:none;background:var(--panel);color:var(--ink-soft);font-family:var(--font-body);font-weight:600;font-size:13.5px;cursor:pointer;border-right:1px solid var(--panel-line);}
+  .seg button:last-child{border-right:none;}
+  .seg button.active{background:var(--accent);color:#fff;}
+  .chipbtns{display:flex;gap:8px;flex-wrap:wrap;}
+  .chipbtns button{padding:8px 14px;border-radius:999px;border:1px solid var(--panel-line);background:var(--panel);color:var(--ink-soft);font-size:13px;font-weight:600;cursor:pointer;}
+  .chipbtns button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .checkline{display:flex;align-items:center;gap:9px;padding:10px 0;cursor:pointer;font-size:13.8px;}
+  .checkline input{width:17px;height:17px;accent-color:var(--accent);}
+  .note{font-size:12.3px;color:var(--ink-soft);background:var(--chip);border-radius:9px;padding:9px 11px;margin-top:2px;}
+  .note.warn{color:var(--warn);background:var(--warn-tint);}
+  .note.danger{color:var(--danger);background:var(--danger-tint);font-weight:600;}
+  .note.ok{color:var(--ok);background:var(--ok-tint);}
+
+  table.groups{width:100%;border-collapse:collapse;margin-bottom:10px;}
+  table.groups th{text-align:left;font-size:11.5px;text-transform:none;color:var(--ink-soft);font-weight:600;padding:0 8px 6px 0;}
+  table.groups td{padding:4px 8px 4px 0;}
+  table.groups input{padding:8px 10px;}
+  .grouptotal{font-size:11.5px;color:var(--ink-soft);}
+  .rmv{border:none;background:none;color:var(--danger);cursor:pointer;font-size:17px;padding:4px 8px;}
+  .addgroup{border:1.5px dashed var(--accent-tint-line);background:var(--accent-tint);color:var(--accent);border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);}
+
+  .summary{position:sticky;top:20px;}
+  .summary h2{font-family:var(--font-head);font-size:15.5px;margin:0 0 14px;}
+  .line{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--panel-line);font-size:13.2px;}
+  .line:last-child{border-bottom:none;}
+  .line .name{color:var(--ink);}
+  .line .meta{color:var(--ink-soft);font-size:11.7px;display:block;margin-top:1px;}
+  .line .val{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .section-title{font-family:var(--font-head);font-weight:800;font-size:11px;letter-spacing:.02em;color:var(--accent);margin:16px 0 4px;}
+  .section-title:first-child{margin-top:0;}
+  .grandtotal{margin-top:16px;padding-top:14px;border-top:2px solid var(--panel-line);display:flex;justify-content:space-between;align-items:baseline;}
+  .grandtotal .lab{font-family:var(--font-head);font-weight:700;font-size:14px;}
+  .grandtotal .amt{font-family:var(--font-head);font-weight:800;font-size:24px;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .grandtotal .vatlab{font-size:11.5px;color:var(--ink-soft);display:block;text-align:right;}
+  .downloadbtn{margin-top:16px;width:100%;padding:13px;border:none;border-radius:11px;background:var(--accent);color:#fff;font-family:var(--font-head);font-weight:700;font-size:13.8px;cursor:pointer;letter-spacing:.01em;}
+  .downloadbtn:disabled{opacity:.6;cursor:wait;}
+  .downloadbtn:hover:not(:disabled){background:var(--accent-2);}
+  .tariff-cat{font-family:var(--font-head);font-weight:800;font-size:11.5px;letter-spacing:.02em;color:var(--accent);margin:18px 0 8px;}
+  .tariff-cat:first-child{margin-top:0;}
+  .tariff-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--panel-line);}
+  .tariff-row .trow-name{flex:1;font-size:13.3px;}
+  .tariff-row .trow-name .trow-unit{display:block;font-size:11.3px;color:var(--ink-soft);}
+  .tariff-row input{width:110px;text-align:right;}
+  .tariff-row .trow-default{font-size:10.8px;color:var(--ink-soft);width:100px;text-align:right;}
+  .tariff-reset{border:none;background:none;color:var(--accent);cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;}
+  .empty{color:var(--ink-soft);font-size:13px;text-align:center;padding:20px 0;}
+
+  .capnote{font-size:12px;color:var(--ink-soft);margin-top:14px;padding-top:14px;border-top:1px solid var(--panel-line);}
+  .footnotes{margin-top:22px;font-size:11.8px;color:var(--ink-soft);line-height:1.7;}
+  .footnotes b{color:var(--ink);}
+  table.tg{width:100%;border-collapse:collapse;font-size:12.5px;min-width:760px;}
+  table.tg th,table.tg td{padding:8px 8px;border-bottom:1px solid var(--panel-line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tg th:first-child,table.tg td:first-child{text-align:left;white-space:normal;}
+  table.tg th{font-size:11.5px;color:var(--ink-soft);font-weight:600;}
+  table.tg .u{display:block;font-size:11px;color:var(--ink-soft);}
+  table.tg .d{display:block;font-size:10.5px;color:var(--ok);}
+  table.tg .cur{background:var(--accent-tint);font-weight:700;}
+  .line s{opacity:.6;margin-left:4px;}
+</style></head>
+<body><div class="wrap">
+<header class="top"><div class="brand"><img src="data:image/png;base64,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" alt="Центр Логистика Терминал"><div class="divider"></div><div><h1>Калькулятор стоимости услуг склада</h1><p>Скидки за оборачиваемость · тарифы действуют до 31.10.2026 · цены с НДС</p></div></div></header>
+<div class="tabs"><button class="tabbtn active" data-tab="pallet">Приход паллетами</button><button class="tabbtn" data-tab="box">Приход коробами</button><button class="tabbtn" data-tab="unit">Приём коробами (поштучно)</button></div>
+<div class="grid"><div>
+<div id="tab-pallet">
+<div class="card"><h2><span class="num">1</span>Параметры паллеты</h2><p class="sub">Стандарт — ЕВРО-паллета 120×80 см, высота до 1,8 м, вес до 700 кг.</p>
+<label class="field"><span class="lbl">Формат паллеты</span><div class="seg" id="p_format_seg"><button class="active" data-v="euro">ЕВРО 120×80 см</button><button data-v="other">Другой формат</button></div></label>
+<div class="row2"><label class="field"><span class="lbl">Высота груза, см (без паллеты — 15 см)</span><input type="number" id="p_H" min="1" value="160"></label><label class="field"><span class="lbl">Вес одной паллеты, кг</span><input type="number" id="p_KG" min="1" value="500"></label></div>
+<div id="p_err" class="note danger hidden">Приём невозможен: высота груза больше 165 см без учёта паллеты (15 см).</div>
+<div id="p_neg" class="note warn hidden">Нестандартный груз (не ЕВРО и/или вес &gt; 700 кг): к хранению применяется коэффициент ×1,5. Точные условия уточните у менеджера.</div></div>
+<div class="card"><h2><span class="num">2</span>Объём и срок</h2>
+<label class="field"><span class="lbl">Кол-во приходящих паллет</span><input type="number" id="p_count" min="0" value="10"></label><label class="field"><span class="lbl">Срок хранения</span><div class="chipbtns" id="p_days_chips"><button class="active" data-v="30">30 дней</button><button data-v="5">5 дней</button><button data-v="custom">Другое</button></div></label>
+<label class="field hidden" id="p_days_custom_wrap"><span class="lbl">Кол-во дней</span><input type="number" id="p_days_custom" min="1" value="15"></label></div></div>
+<div id="tab-box" class="hidden">
+<div class="card"><h2><span class="num">1</span>Параметры короба</h2><p class="sub">Товар приходит коробами без паллет. Считаем, сколько коробов помещается на ЕВРО-паллету (до 165 см по высоте, до 700 кг).</p><div class="row3"><label class="field"><span class="lbl">Длина короба, см</span><input type="number" id="b_L" min="1" value="40"></label><label class="field"><span class="lbl">Ширина, см</span><input type="number" id="b_W" min="1" value="40"></label><label class="field"><span class="lbl">Высота, см</span><input type="number" id="b_H" min="1" value="60"></label></div>
+<label class="field"><span class="lbl">Вес короба, кг (необязательно)</span><input type="number" id="b_KG" min="0" value="20"></label>
+<div id="b_fit" class="note ok"></div><div id="b_fiterr" class="note danger hidden">Короб с такими габаритами или весом не помещается на паллету — проверьте размеры.</div>
+<label class="field"><span class="lbl">Кол-во коробов к приёму</span><input type="number" id="b_count" min="0" value="200"></label></div>
+<div class="card"><h2><span class="num">2</span>Срок, паллеты и упаковка</h2><label class="field"><span class="lbl">Срок хранения</span><div class="chipbtns" id="b_days_chips"><button class="active" data-v="30">30 дней</button><button data-v="5">5 дней</button><button data-v="custom">Другое</button></div></label>
+<label class="field hidden" id="b_days_custom_wrap"><span class="lbl">Кол-во дней</span><input type="number" id="b_days_custom" min="1" value="15"></label>
+<label class="field"><span class="lbl">Паллеты для хранения</span><select id="b_palmode"><option value="buy">Склад предоставляет, без возврата</option><option value="rent">Аренда паллет у склада (в месяц)</option><option value="own">Свои паллеты</option></select></label>
+<label class="checkline"><input type="checkbox" id="b_wrap" checked> Обмотать паллеты стретч-плёнкой (3 слоя)</label></div></div>
+<div id="tab-unit" class="hidden">
+<div class="card"><h2><span class="num">1</span>Тип приёмки</h2>
+<div class="seg" id="u_type_seg"><button class="active" data-v="mixed">Разносортный (неск. товаров в коробе)</button><button data-v="mono">Монотовар (один товар в коробе)</button></div>
+<div id="u_mixed" style="margin-top:14px"><p class="sub" style="margin-top:-4px">Сколько коробов пришло с одинаковым числом штук внутри (например, 30 коробов × 12 шт.).</p>
+<table class="groups"><thead><tr><th>Кол-во коробов</th><th>Штук в коробе</th><th>Итого штук</th><th></th></tr></thead><tbody id="u_groups"></tbody></table><button class="addgroup" id="u_add">+ Добавить группу</button></div>
+<div id="u_mono" class="hidden" style="margin-top:14px"><label class="field"><span class="lbl">Кол-во коробов</span><input type="number" id="u_mono_boxes" min="0" value="50"></label></div>
+<div id="u_tot" class="note" style="margin-top:10px"></div></div>
+<div class="card"><h2><span class="num">2</span>Размер короба и хранение</h2><div class="row3"><label class="field"><span class="lbl">Длина короба, см</span><input type="number" id="u_L" min="1" value="40"></label><label class="field"><span class="lbl">Ширина, см</span><input type="number" id="u_W" min="1" value="40"></label><label class="field"><span class="lbl">Высота, см</span><input type="number" id="u_H" min="1" value="60"></label></div>
+<label class="field"><span class="lbl">Вес короба, кг (необязательно)</span><input type="number" id="u_KG" min="0" value="20"></label>
+<div id="u_fit" class="note ok"></div><div id="u_fiterr" class="note danger hidden">Короб с такими габаритами или весом не помещается на паллету — проверьте размеры.</div><label class="field"><span class="lbl">Срок хранения</span><div class="chipbtns" id="u_days_chips"><button class="active" data-v="30">30 дней</button><button data-v="5">5 дней</button><button data-v="custom">Другое</button></div></label>
+<label class="field hidden" id="u_days_custom_wrap"><span class="lbl">Кол-во дней</span><input type="number" id="u_days_custom" min="1" value="15"></label>
+<label class="field"><span class="lbl">Паллеты для хранения</span><select id="u_palmode"><option value="buy">Склад предоставляет, без возврата</option><option value="rent">Аренда паллет у склада (в месяц)</option><option value="own">Свои паллеты</option></select></label></div>
+<div class="card"><h2><span class="num">3</span>Комплектация заказа</h2>
+<label class="field"><span class="lbl">Кол-во штук к подбору по заявке</span><input type="number" id="u_pick" min="0" value="0"></label>
+<label class="field"><span class="lbl">Кол-во коробов под заявку (укладка продукции в гофрокороб)</span><input type="number" id="u_pack" min="0" value="0"></label>
+<label class="checkline"><input type="checkbox" id="u_gofr"> Гофрокороб предоставляет склад</label>
+<label class="checkline"><input type="checkbox" id="u_ship"> Сформировать паллету для отправки (со стретч-плёнкой и паллетой без возврата)</label>
+<label class="field hidden" id="u_ship_qty_wrap"><span class="lbl">Кол-во формируемых паллет</span><input type="number" id="u_ship_qty" min="0" value="0"></label></div></div>
+<div class="card"><h2>Оборачиваемость и скидка</h2><p class="sub">Цена зависит от месячной оборачиваемости в паллетах: чем больше объём, тем ниже тариф. По умолчанию берётся объём из расчёта (короба пересчитываются в паллеты).</p><label class="field"><span class="lbl">Оборачиваемость в месяц, паллет</span><input type="number" id="t_over" min="0" placeholder="укажите объём"></label><p class="sub" style="margin:-8px 0 12px">Тариф зависит от месячной оборачиваемости, а не от объёма разовой поставки — по возможности укажите её здесь. Если поле пустое, используется объём из расчёта.</p><div id="t_info" class="note ok"></div></div>
+<div class="card"><h2><span class="num" id="onum">3</span>Отгрузка и комплектация</h2><p class="sub">Заполните, если в расчёт входит и отгрузка со склада.</p>
+<label class="checkline"><input type="checkbox" id="o_use"> Рассчитать отгрузку</label>
+<div id="o_body" class="hidden">
+<label class="field"><span class="lbl">Способ подбора заказа</span><div class="seg" id="o_mode_seg"><button class="active" data-v="box">Коробами</button><button data-v="pallet">Целыми паллетами</button></div></label>
+<div id="o_box_wrap">
+<label class="field"><span class="lbl">Кол-во коробов к подбору</span><input type="number" id="o_box_qty" min="0" value="0"></label>
+<label class="field"><span class="lbl">Погрузка</span><div class="seg" id="o_boxmode_seg"><button class="active" data-v="loose">Без паллетизации — ручная погрузка</button><button data-v="pal">С формированием паллет — механизированная погрузка</button></div></label>
+<label class="field hidden" id="o_form_qty_wrap"><span class="lbl">Кол-во формируемых паллет</span><input type="number" id="o_form_qty" min="0" value="0"></label>
+</div>
+<div id="o_pall_wrap" class="hidden">
+<label class="field"><span class="lbl">Кол-во паллет к отгрузке</span><input type="number" id="o_pall_qty" min="0" value="0"></label>
+<label class="checkline"><input type="checkbox" id="o_wrap"> Обмотать стретч-плёнкой (3 слоя)</label>
+</div>
+</div></div>
+<div class="note">В расчёт входят услуги из коммерческого предложения. Прочие работы (сортировка, маркировка, погрузка, доставка и др.) согласуем под вашу задачу.</div>
+</div>
+<div><div class="card summary"><h2>Итог расчёта</h2><div id="sumBody"></div>
+<div class="grandtotal"><div class="lab">Итого</div><div style="text-align:right"><div class="amt" id="grand">0 ₽</div><span class="vatlab">с НДС</span></div></div>
+<label class="field" style="margin-top:14px"><span class="lbl">Комментарий (попадёт в PDF)</span><textarea id="comment" rows="3" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--panel-line);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:13.5px;resize:vertical"></textarea></label>
+<button id="pdfBtn" class="downloadbtn">Скачать расчёт (PDF)</button><div id="pdfHint" class="note hidden" style="margin-top:9px"></div></div>
+<div class="card"><h2>Ваш личный менеджер</h2><p class="sub" style="margin:6px 0 0">Станислав Киселев<br><a href="mailto:s.kiselev@cl-terminal.ru">s.kiselev@cl-terminal.ru</a><br>+7 (495) 150-25-09, доб. 151<br><a href="https://cl-terminal-3pl.ru">cl-terminal-3pl.ru</a></p></div></div></div>
+<div class="card" style="margin-top:20px"><h2>Тарифная сетка по оборачиваемости</h2><p class="sub">Цена за единицу, ₽ с НДС. Колонки — паллет в месяц; под ценой — скидка к базовому прайсу.</p><div style="overflow-x:auto" id="tgrid"></div></div>
+<div class="footnotes">Расчёт справочный и не заменяет договор. Тариф определяется месячной оборачиваемостью в паллетах. Тарифы действуют до 31.10.2026, цены указаны с НДС. Складской терминал Калининец, МО, Наро-Фоминский г.о.</div>
+<div id="printReport"></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// Базовые цены (Приложение 3, с НДС 22%) и цены при максимальной скидке (250+ паллет)
+const BASE={unload_mech:315.17,unload_hand:44.12,storage:58.56,unit:18.91,pick_box:44.12,pick_pallet:189.10,pack_box:25.21,form_pallet:441.23,stretch:279.58,pallet_rent:223.67,load_hand:44.12,load_mech:315.17};
+const MINP={unload_mech:220,unload_hand:30,storage:45,unit:14,pick_box:30,pick_pallet:120,pack_box:20,form_pallet:250,stretch:230,pallet_rent:200,load_hand:30,load_mech:220};
+const FIXED={pallet:690,gofr:120}; // без скидки
+// f — от скольких паллет/мес, s — доля максимальной скидки
+const TIERS=[{f:0,s:0},{f:50,s:.3},{f:100,s:.5},{f:150,s:.65},{f:200,s:.8},{f:250,s:.9},{f:300,s:1}];
+const tierIdx=x=>{let i=0;TIERS.forEach((t,k)=>{if(x>=t.f)i=k;});return i;};
+const baseOf=k=>k in FIXED?FIXED[k]:BASE[k];
+const priceAt=(k,i)=>{if(k in FIXED)return FIXED[k];const b=BASE[k],m=MINP[k],s=TIERS[i].s;if(s===0)return b;if(s===1)return m;const r=b-(b-m)*s;return r<100?Math.round(r*2)/2:Math.round(r);};
+const SVC=[['unload_mech','Выгрузка механизированная','паллета'],['unload_hand','Ручная выгрузка коробов до 25 кг','короб'],['storage','Хранение на европаллете','паллета / сутки'],['unit','Поштучная приёмка / комплектация','шт.'],['pick_box','Комплектация заказа коробами','короб'],['pick_pallet','Комплектация заказа паллетами','паллета'],['pack_box','Укладка продукции в гофрокороб','короб'],['form_pallet','Формирование паллеты','паллета'],['stretch','Обмотка стрейч-пленкой в 3 слоя','паллета'],['load_hand','Погрузка ручная коробов до 25 кг','короб'],['load_mech','Погрузка механизированная','паллета'],['pallet_rent','Предоставление паллеты в аренду','паллета / месяц'],['pallet','Предоставление паллеты без возврата','шт.'],['gofr','Гофрокороб 40×40×60','шт.']];
+let curTier=0,curSave=0;
+const $=id=>document.getElementById(id), n=id=>+$(id).value||0;
+const fmt=x=>Math.round(x).toLocaleString('ru-RU')+' ₽';
+const fmtP=x=>(Math.round(x*100)/100).toLocaleString('ru-RU')+' ₽';
+function renderGrid(){let h='<table class="tg"><thead><tr><th>Услуга</th>'+TIERS.map((t,i)=>'<th class="'+(i===curTier?'cur':'')+'">'+(i?'от '+t.f:'до '+TIERS[1].f)+'</th>').join('')+'</tr></thead><tbody>';
+  SVC.forEach(([k,nm,u])=>{h+='<tr><td>'+nm+'<span class="u">'+u+'</span></td>'+TIERS.map((t,i)=>{const p=priceAt(k,i),d=Math.round((1-p/baseOf(k))*100);return '<td class="'+(i===curTier?'cur':'')+'">'+fmtP(p).replace(' ₽','')+(d>0?'<span class="d">−'+d+'%</span>':'')+'</td>';}).join('')+'</tr>';});
+  $('tgrid').innerHTML=h+'</tbody></table>';}
+function palAdd(add,mode,q,days,sfx){if(mode==='buy')add(ORDER[3],'Паллета без возврата'+sfx,q,'шт.','pallet');if(mode==='rent'){const m=Math.max(1,Math.ceil(days/30));add(ORDER[3],'Аренда паллеты'+sfx+' ('+m+' мес.)',q*m,'паллето-мес.','pallet_rent');}}
+function tierNote(){const t=TIERS[curTier];return '<div style="font-size:11px;color:#4a4f63;margin-top:6px">Тариф по оборачиваемости: '+(curTier?'от '+t.f+' паллет в месяц':'базовый (до '+TIERS[1].f+' паллет в месяц)')+'. Экономия к базовому прайсу: '+fmt(curSave)+'</div>';}
+const ORDER=['Приём товара','Хранение','Комплектация и подготовка','Упаковочные материалы'];
+function seg(id,cb){const el=$(id);el.querySelectorAll('button').forEach(b=>b.onclick=()=>{el.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');cb&&cb(b.dataset.v);calc();});return()=>el.querySelector('.active').dataset.v;}
+const getFmt=seg('p_format_seg'), getType=seg('u_type_seg',v=>{$('u_mixed').classList.toggle('hidden',v!=='mixed');$('u_mono').classList.toggle('hidden',v!=='mono');});
+function chips(p){const el=$(p+'_days_chips');el.querySelectorAll('button').forEach(b=>b.onclick=()=>{el.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(p+'_days_custom_wrap').classList.toggle('hidden',b.dataset.v!=='custom');calc();});return()=>{const v=el.querySelector('.active').dataset.v;return v==='custom'?n(p+'_days_custom'):+v;};}
+const dP=chips('p'), dB=chips('b'), dU=chips('u');
+document.querySelectorAll('.tabbtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');['pallet','box','unit'].forEach(t=>$('tab-'+t).classList.toggle('hidden',t!==b.dataset.tab));$('onum').textContent=b.dataset.tab==='unit'?'4':'3';calc();});
+function tog(c,ids){$(c).onchange=e=>{ids.forEach(i=>$(i).classList.toggle('hidden',!e.target.checked));calc();};}
+tog('o_use',['o_body']);tog('u_ship',['u_ship_qty_wrap']);
+const getOMode=seg('o_mode_seg',v=>{$('o_box_wrap').classList.toggle('hidden',v!=='box');$('o_pall_wrap').classList.toggle('hidden',v!=='pallet');});
+const getOBoxMode=seg('o_boxmode_seg',v=>{$('o_form_qty_wrap').classList.toggle('hidden',v!=='pal');});
+function addU(b,u){const tr=document.createElement('tr');tr.innerHTML='<td><input type="number" min="0" class="gb" value="'+b+'"></td><td><input type="number" min="0" class="gu" value="'+u+'"></td><td class="grouptotal gt">—</td><td><button class="rmv" title="Удалить">✕</button></td>';tr.querySelectorAll('input').forEach(i=>i.oninput=calc);tr.querySelector('.rmv').onclick=()=>{tr.remove();calc();};$('u_groups').appendChild(tr);}
+$('u_add').onclick=()=>{addU(10,12);calc();};addU(30,12);addU(10,6);
+function fit(p){const L=n(p+'_L'),W=n(p+'_W'),H=n(p+'_H'),KG=n(p+'_KG');if(!L||!W||!H)return{per:0,pl:0,ly:0};const pl=Math.max(Math.floor(120/L)*Math.floor(80/W),Math.floor(120/W)*Math.floor(80/L)),ly=Math.floor(165/H);let per=pl*ly;if(KG>0)per=Math.min(per,Math.floor(700/KG));return{per,pl,ly};}
+function showFit(p,count,cb){const f=fit(p),ok=f.per>=1;$(p+'_fit').classList.toggle('hidden',!ok);$(p+'_fiterr').classList.toggle('hidden',ok);if(!ok)return 0;const pal=Math.ceil(count/f.per);$(p+'_fit').textContent='На 1 ЕВРО-паллету помещается '+f.per+' короб(ов) ('+f.pl+' в слое × '+f.ly+' слоёв). Паллет: '+pal+'.';return pal;}
+let last=null;
+function calc(){
+  const L=[],add=(s,name,q,u,key,m)=>L.push({s,name,q,u,key,m});
+  const tab=document.querySelector('.tabbtn.active').dataset.tab;let blocked=false,turn=0;
+  if(tab==='pallet'){const H=n('p_H'),KG=n('p_KG'),neg=getFmt()==='other'||KG>700;blocked=H>165;
+    $('p_err').classList.toggle('hidden',!blocked);$('p_neg').classList.toggle('hidden',!neg||blocked);
+    const c=n('p_count');turn=c;add(ORDER[0],'Выгрузка механизированная',c,'паллет','unload_mech');
+    add(ORDER[1],'Хранение на европаллетах'+(neg?' (коэф. ×1,5)':''),c*dP(),'паллето-сутки','storage',neg?1.5:1);}
+  if(tab==='box'){const c=n('b_count'),pal=showFit('b',c);if(pal){turn=pal;
+    add(ORDER[0],'Ручная выгрузка коробов до 25 кг',c,'короб','unload_hand');
+    add(ORDER[2],'Формирование паллеты',pal,'паллет','form_pallet');
+    add(ORDER[1],'Хранение на европаллетах',pal*dB(),'паллето-сутки','storage');
+    palAdd(add,$('b_palmode').value,pal,dB(),'');
+    if($('b_wrap').checked)add(ORDER[2],'Обмотка стретч-плёнкой в 3 слоя',pal,'паллет','stretch');}}
+  if(tab==='unit'){let boxes=0,units=0;
+    if(getType()==='mixed'){document.querySelectorAll('#u_groups tr').forEach(tr=>{const b=+tr.querySelector('.gb').value||0,u=+tr.querySelector('.gu').value||0;tr.querySelector('.gt').textContent=b*u+' шт.';boxes+=b;units+=b*u;});$('u_tot').textContent='Итого: '+boxes.toLocaleString('ru-RU')+' короб(ов), '+units.toLocaleString('ru-RU')+' шт.';}
+    else{boxes=n('u_mono_boxes');$('u_tot').textContent='Итого: '+boxes.toLocaleString('ru-RU')+' короб(ов).';}
+    add(ORDER[0],'Ручная выгрузка коробов до 25 кг',boxes,'короб','unload_hand');
+    if(getType()==='mixed')add(ORDER[2],'Поштучная приёмка',units,'шт.','unit');
+    const pal=showFit('u',boxes);
+    if(pal){turn=pal;add(ORDER[1],'Хранение на европаллетах',pal*dU(),'паллето-сутки','storage');palAdd(add,$('u_palmode').value,pal,dU(),' (для хранения)');}
+    add(ORDER[2],'Поштучная комплектация',n('u_pick'),'шт.','unit');
+    add(ORDER[2],'Укладка продукции в гофрокороб',n('u_pack'),'короб','pack_box');
+    if($('u_gofr').checked)add(ORDER[3],'Гофрокороб 40×40×60',n('u_pack'),'шт.','gofr');
+    if($('u_ship').checked){const q=n('u_ship_qty');add(ORDER[2],'Формирование паллеты',q,'паллет','form_pallet');add(ORDER[2],'Обмотка стретч-плёнкой в 3 слоя',q,'паллет','stretch');add(ORDER[3],'Паллета без возврата (для отправки)',q,'шт.','pallet');}}
+  if($('o_use').checked){
+    if(getOMode()==='box'){
+      const bq=n('o_box_qty');
+      add(ORDER[2],'Комплектация заказа коробами',bq,'короб','pick_box');
+      if(getOBoxMode()==='pal'){
+        const pq=n('o_form_qty');
+        add(ORDER[2],'Формирование паллеты',pq,'паллет','form_pallet');
+        add(ORDER[2],'Обмотка стретч-плёнкой в 3 слоя',pq,'паллет','stretch');
+        add(ORDER[2],'Погрузка механизированная',pq,'паллета','load_mech');
+      }else{
+        add(ORDER[2],'Погрузка ручная коробов до 25 кг',bq,'короб','load_hand');
+      }
+    }else{
+      const pq=n('o_pall_qty');
+      add(ORDER[2],'Комплектация заказа паллетами',pq,'паллета','pick_pallet');
+      if($('o_wrap').checked)add(ORDER[2],'Обмотка стретч-плёнкой в 3 слоя',pq,'паллет','stretch');
+      add(ORDER[2],'Погрузка механизированная',pq,'паллета','load_mech');
+    }}
+  render(L,blocked,turn);}
+function render(L,blocked,turn){
+  const ov=n('t_over'),eff=ov>0?ov:turn;curTier=tierIdx(eff);const T=TIERS[curTier];
+  $('t_info').textContent='Ваш тариф: '+(curTier?'от '+T.f+' паллет в месяц':'базовый (до '+TIERS[1].f+' паллет в месяц)')+' · оборачиваемость: '+Math.round(eff).toLocaleString('ru-RU')+' паллет';renderGrid();
+  if(blocked){$('sumBody').innerHTML='<div class="empty">Расчёт остановлен: исправьте высоту груза в п. 1.</div>';$('grand').textContent='—';$('pdfBtn').disabled=true;last=null;return;}
+  $('pdfBtn').disabled=false;const by={};let grand=0,bsum=0;
+  L.filter(l=>l.q>0).forEach(l=>{l.p=priceAt(l.key,curTier)*(l.m||1);l.b=baseOf(l.key)*(l.m||1);l.sum=l.q*l.p;grand+=l.sum;bsum+=l.q*l.b;(by[l.s]=by[l.s]||[]).push(l);});
+  let h='';ORDER.forEach(s=>{if(!by[s])return;h+='<div class="section-title">'+s+'</div>';by[s].forEach(l=>{h+='<div class="line"><div class="name">'+l.name+'<span class="meta">'+l.q.toLocaleString('ru-RU')+' '+l.u+' × '+fmtP(l.p)+(l.b>l.p+.005?' <s>'+fmtP(l.b)+'</s> −'+Math.round((1-l.p/l.b)*100)+'%':'')+'</span></div><div class="val">'+fmt(l.sum)+'</div></div>';});});
+  $('sumBody').innerHTML=h||'<div class="empty">Заполните параметры слева — расчёт появится здесь.</div>';
+  curSave=bsum-grand;$('grand').textContent=fmt(grand);if(curSave>0.5)$('sumBody').innerHTML+='<div class="note ok" style="margin-top:12px">Экономия к базовому прайсу: '+fmt(curSave)+'</div>';last={by,grand};}
+function reportHTML(){
+  const d=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'}),esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),cm=$('comment').value.trim();
+  const td='padding:7px 6px;border-bottom:1px solid #e2e6f0;';let rows='';
+  ORDER.forEach(s=>{if(!last.by[s])return;rows+='<tr><td colspan="4" style="background:#eef0fe;font-weight:800;font-size:11px;color:#1a2fd6;padding:10px 6px 5px">'+s+'</td></tr>';last.by[s].forEach(l=>{rows+='<tr><td style="'+td+'">'+l.name+'</td><td style="'+td+'text-align:right;white-space:nowrap">'+l.q.toLocaleString('ru-RU')+' '+l.u+'</td><td style="'+td+'text-align:right;white-space:nowrap">'+fmtP(l.p)+'</td><td style="'+td+'text-align:right;font-weight:700;white-space:nowrap">'+fmt(l.sum)+'</td></tr>';});});
+  return '<div style="display:flex;align-items:center;gap:14px;border-bottom:2px solid #1a2fd6;padding-bottom:16px;margin-bottom:22px;font-family:Inter,sans-serif"><img src="'+document.querySelector('.brand img').src+'" style="height:34px"><div><div style="font-weight:800;font-size:17px;color:#12141c">Расчёт стоимости услуг склада</div><div style="font-size:12px;color:#4a4f63;margin-top:2px">Тарифы по коммерческому предложению до 31.10.2026 · цены с НДС · '+d+'</div></div></div>'
+  +'<table style="width:100%;border-collapse:collapse;font-size:12.5px;font-family:Inter,sans-serif;color:#12141c"><thead><tr style="border-bottom:1.5px solid #12141c"><th style="text-align:left;padding:6px;font-size:11px;color:#4a4f63">Услуга</th><th style="text-align:right;padding:6px;font-size:11px;color:#4a4f63">Кол-во</th><th style="text-align:right;padding:6px;font-size:11px;color:#4a4f63">Цена за ед.</th><th style="text-align:right;padding:6px;font-size:11px;color:#4a4f63">Сумма</th></tr></thead><tbody>'+rows+'</tbody></table>'
+  +'<div style="text-align:right;margin-top:18px;padding-top:14px;border-top:2px solid #12141c;font-family:Inter,sans-serif"><div style="font-size:12px;color:#4a4f63">с НДС</div><div style="font-weight:800;font-size:22px">Итого: '+fmt(last.grand)+'</div>'+tierNote()+'</div>'
+  +(cm?'<div style="margin-top:18px;padding:12px 14px;border:1.5px solid #d7dcfb;background:#f6f7ff;border-radius:10px;font-family:Inter,sans-serif;font-size:12px;line-height:1.55">'+esc(cm).replace(/\n/g,'<br>')+'</div>':'')
+  +'<div style="margin-top:22px;font-size:10.3px;color:#4a4f63;line-height:1.6;font-family:Inter,sans-serif">Расчёт справочный и не заменяет договор. Прочие работы (сортировка, маркировка, погрузка, доставка) согласуются отдельно. Менеджер: Станислав Киселев, s.kiselev@cl-terminal.ru, +7 (495) 150-25-09 доб. 151.</div>';}
+$('pdfBtn').onclick=async()=>{const hint=$('pdfHint'),btn=$('pdfBtn');hint.classList.add('hidden');
+  if(!last){hint.textContent='Сначала заполните параметры расчёта.';hint.classList.remove('hidden');return;}
+  if(typeof html2canvas==='undefined'||!window.jspdf){hint.textContent='Модуль экспорта не загрузился (нет соединения). Обновите страницу.';hint.classList.remove('hidden');return;}
+  const t=btn.textContent;btn.disabled=true;btn.textContent='Формируем PDF…';const el=$('printReport');
+  try{el.innerHTML=reportHTML();el.style.cssText='display:block;position:fixed;left:-10000px;top:0;width:780px;background:#fff;padding:34px';await new Promise(r=>setTimeout(r,60));
+    const cv=await html2canvas(el,{scale:1.5,backgroundColor:'#ffffff'});el.style.display='none';
+    const pdf=new window.jspdf.jsPDF('p','mm','a4',{compress:true}),ih=cv.height*210/cv.width,img=cv.toDataURL('image/jpeg',0.82);let left=ih,pos=0;
+    pdf.addImage(img,'JPEG',0,pos,210,ih);left-=297;while(left>0){pos=left-ih;pdf.addPage();pdf.addImage(img,'JPEG',0,pos,210,ih);left-=297;}
+    const url=URL.createObjectURL(pdf.output('blob')),a=document.createElement('a');a.href=url;a.download='raschet-uslug-sklada-'+new Date().toISOString().slice(0,10)+'.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
+  }catch(e){hint.textContent='Не удалось сформировать PDF. Попробуйте ещё раз.';hint.classList.remove('hidden');}
+  finally{btn.disabled=false;btn.textContent=t;}};
+document.querySelectorAll('input').forEach(i=>{i.addEventListener('input',calc);i.addEventListener('change',calc);});
+document.querySelectorAll('select').forEach(i=>i.addEventListener('change',calc));
+calc();
+</script></body></html>
